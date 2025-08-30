@@ -1,6 +1,7 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
+import { join, normalize, resolve } from 'node:path';
 import type { App } from 'obsidian';
-import { join, normalize, resolve } from 'path';
+import { ErrorHandler } from './error-handler';
 
 /**
  * Service class for resolving image paths from relative to absolute paths
@@ -16,25 +17,36 @@ export class PathResolver {
    */
   public resolveImagePath(imagePath: string): string | null {
     if (!imagePath || imagePath.trim() === '') {
+      ErrorHandler.handlePathResolutionError('Empty or invalid path provided');
       return null;
     }
 
-    let resolvedPath: string;
+    try {
+      let resolvedPath: string;
 
-    if (this.isAbsolutePath(imagePath)) {
-      // Handle absolute paths - normalize and validate
-      resolvedPath = normalize(imagePath);
-    } else {
-      // Handle relative paths - resolve using vault base path
-      resolvedPath = this.resolveRelativePath(imagePath);
-    }
+      if (this.isAbsolutePath(imagePath)) {
+        // Handle absolute paths - normalize and validate
+        resolvedPath = normalize(imagePath);
+      } else {
+        // Handle relative paths - resolve using vault base path
+        resolvedPath = this.resolveRelativePath(imagePath);
+      }
 
-    // Validate that the file exists
-    if (!this.validateFileExists(resolvedPath)) {
+      // Validate that the file exists
+      if (!this.validateFileExists(resolvedPath)) {
+        ErrorHandler.handleFileNotFound(resolvedPath);
+        return null;
+      }
+
+      return resolvedPath;
+    } catch (error) {
+      ErrorHandler.handlePathResolutionError(imagePath);
+      console.error(
+        `[Double-Click Image Opener] Path resolution error for ${imagePath}:`,
+        error,
+      );
       return null;
     }
-
-    return resolvedPath;
   }
 
   /**
@@ -56,21 +68,32 @@ export class PathResolver {
    * Resolves a relative path using Obsidian's vault API
    * @param path - The relative path to resolve
    * @returns Absolute file path
+   * @throws Error if vault base path cannot be determined
    */
   private resolveRelativePath(path: string): string {
-    // Get the vault's base path from configDir (remove .obsidian suffix)
-    const vaultBasePath = this.app.vault.configDir.replace(
-      /[/\\]\.obsidian$/,
-      '',
-    );
+    try {
+      // Get the vault's base path from configDir (remove .obsidian suffix)
+      const vaultBasePath = this.app.vault.configDir.replace(
+        /[/\\]\.obsidian$/,
+        '',
+      );
 
-    // Clean up the path - remove leading ./ and normalize
-    const cleanPath = path.replace(/^\.\//, '');
+      if (!vaultBasePath) {
+        throw new Error('Could not determine vault base path');
+      }
 
-    // Join with vault base path and resolve to absolute path
-    const absolutePath = resolve(join(vaultBasePath, cleanPath));
+      // Clean up the path - remove leading ./ and normalize
+      const cleanPath = path.replace(/^\.\//, '');
 
-    return normalize(absolutePath);
+      // Join with vault base path and resolve to absolute path
+      const absolutePath = resolve(join(vaultBasePath, cleanPath));
+
+      return normalize(absolutePath);
+    } catch (error) {
+      throw new Error(
+        `Failed to resolve relative path "${path}": ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   /**
@@ -81,8 +104,11 @@ export class PathResolver {
   private validateFileExists(path: string): boolean {
     try {
       return existsSync(path);
-    } catch (_error) {
+    } catch (error) {
       // Handle permission errors or other filesystem errors
+      if (error instanceof Error && ErrorHandler.isPermissionError(error)) {
+        ErrorHandler.handlePermissionError(error, path);
+      }
       return false;
     }
   }

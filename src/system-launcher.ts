@@ -1,6 +1,7 @@
-import { exec } from 'child_process';
-import { platform } from 'os';
-import { promisify } from 'util';
+import { exec } from 'node:child_process';
+import { platform } from 'node:os';
+import { promisify } from 'node:util';
+import { ErrorHandler } from './error-handler';
 
 const execAsync = promisify(exec);
 
@@ -10,10 +11,26 @@ const execAsync = promisify(exec);
  * @throws Error if the file cannot be opened
  */
 export async function openWithDefaultApp(filePath: string): Promise<void> {
-  const command = getOpenCommand();
-  const escapedPath = escapeFilePath(filePath);
+  try {
+    const command = getOpenCommand();
+    const escapedPath = escapeFilePath(filePath);
 
-  await executeCommand(command, [escapedPath]);
+    await executeCommand(command, [escapedPath]);
+  } catch (error) {
+    if (error instanceof Error) {
+      // Check for specific error types
+      if (ErrorHandler.isPermissionError(error)) {
+        ErrorHandler.handlePermissionError(error, filePath);
+      } else if (ErrorHandler.isFileNotFoundError(error)) {
+        ErrorHandler.handleFileNotFound(filePath);
+      } else {
+        ErrorHandler.handleSystemError(error, filePath);
+      }
+    } else {
+      ErrorHandler.handleSystemError(new Error(String(error)), filePath);
+    }
+    throw error; // Re-throw to allow caller to handle if needed
+  }
 }
 
 /**
@@ -43,13 +60,22 @@ function getOpenCommand(): string {
  * @throws Error if the command execution fails
  */
 async function executeCommand(command: string, args: string[]): Promise<void> {
+  const fullCommand = `${command} ${args.join(' ')}`;
+
   try {
-    const fullCommand = `${command} ${args.join(' ')}`;
     await execAsync(fullCommand);
   } catch (error) {
-    throw new Error(
+    const commandError = new Error(
       `Failed to execute system command: ${error instanceof Error ? error.message : String(error)}`,
     );
+
+    // Log the command failure for debugging
+    ErrorHandler.handleSystemCommandError(
+      fullCommand,
+      error instanceof Error ? error : new Error(String(error)),
+    );
+
+    throw commandError;
   }
 }
 

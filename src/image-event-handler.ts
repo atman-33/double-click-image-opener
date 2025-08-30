@@ -1,4 +1,5 @@
 import type { App, Plugin } from 'obsidian';
+import { ErrorHandler } from './error-handler';
 import { PathResolver } from './path-resolver';
 import { openWithDefaultApp } from './system-launcher';
 
@@ -89,65 +90,100 @@ export class ImageEventHandler {
   }
 
   /**
+   * Validates if the given path represents a supported image format
+   * @param imagePath - The image path to validate
+   * @returns True if the format is supported, false otherwise
+   */
+  private isValidImageFormat(imagePath: string): boolean {
+    const supportedExtensions = [
+      '.png',
+      '.jpg',
+      '.jpeg',
+      '.gif',
+      '.webp',
+      '.bmp',
+      '.svg',
+      '.ico',
+      '.tiff',
+      '.tif',
+    ];
+
+    const lowercasePath = imagePath.toLowerCase();
+    return supportedExtensions.some((ext) => lowercasePath.endsWith(ext));
+  }
+
+  /**
    * Handles double-click events on image elements
    * @param event - The mouse event
    */
   private async handleImageDoubleClick(event: MouseEvent): Promise<void> {
-    const target = event.target as HTMLElement;
-
-    // Check if the clicked element is an image or contains an image
-    if (!this.isImageElement(target)) {
-      return;
-    }
-
-    // Prevent default behavior and stop event propagation to avoid interference
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    // Get the actual image element
-    let imgElement: HTMLImageElement | null = null;
-
-    if (target.tagName.toLowerCase() === 'img') {
-      imgElement = target as HTMLImageElement;
-    } else {
-      // Look for img element within the target
-      imgElement = target.querySelector('img');
-    }
-
-    if (!imgElement) {
-      console.warn('Double-Click Image Opener: Could not find image element');
-      return;
-    }
-
-    // Extract the image path
-    const imagePath = this.extractImagePath(imgElement);
-    if (!imagePath) {
-      console.warn(
-        'Double-Click Image Opener: Could not extract image path from element',
-      );
-      return;
-    }
-
     try {
+      const target = event.target as HTMLElement;
+
+      // Check if the clicked element is an image or contains an image
+      if (!this.isImageElement(target)) {
+        return;
+      }
+
+      // Prevent default behavior and stop event propagation to avoid interference
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      // Get the actual image element
+      let imgElement: HTMLImageElement | null = null;
+
+      if (target.tagName.toLowerCase() === 'img') {
+        imgElement = target as HTMLImageElement;
+      } else {
+        // Look for img element within the target
+        imgElement = target.querySelector('img');
+      }
+
+      if (!imgElement) {
+        ErrorHandler.handleGenericError(
+          new Error('Could not find image element'),
+          'image element detection',
+        );
+        return;
+      }
+
+      // Extract the image path
+      const imagePath = this.extractImagePath(imgElement);
+      if (!imagePath) {
+        ErrorHandler.handleGenericError(
+          new Error('Could not extract image path from element'),
+          'image path extraction',
+        );
+        return;
+      }
+
+      // Validate image format (basic check)
+      if (!this.isValidImageFormat(imagePath)) {
+        ErrorHandler.handleInvalidImageFormat(imagePath);
+        return;
+      }
+
       // Resolve the image path to an absolute path using PathResolver
       const resolvedPath = this.pathResolver.resolveImagePath(imagePath);
       if (!resolvedPath) {
-        console.error(
-          'Double-Click Image Opener: Could not resolve image path:',
-          imagePath,
-        );
-        // TODO: Show user-friendly error message in future error handling task
+        // Error handling is already done in PathResolver
         return;
       }
 
       // Open the image with the default system application using SystemLauncher
       await openWithDefaultApp(resolvedPath);
 
-      // TODO: Show success notification if enabled in settings (future task)
+      // Success - no notification needed as the image should open
+      console.log(
+        `[Double-Click Image Opener] Successfully opened: ${resolvedPath}`,
+      );
     } catch (error) {
-      console.error('Double-Click Image Opener: Failed to open image:', error);
-      // TODO: Handle specific error types in future error handling task
+      // Handle any unexpected errors that weren't caught by specific handlers
+      ErrorHandler.handleGenericError(
+        error instanceof Error ? error : new Error(String(error)),
+        'image double-click handling',
+      );
     }
   }
 
@@ -155,14 +191,38 @@ export class ImageEventHandler {
    * Registers event listeners for image double-click handling
    */
   public registerEventListeners(): void {
-    // Use event delegation on the document to catch all image double-clicks
-    document.addEventListener('dblclick', this.boundHandleDoubleClick, true);
+    try {
+      // Use event delegation on the document to catch all image double-clicks
+      document.addEventListener('dblclick', this.boundHandleDoubleClick, true);
+      console.log(
+        '[Double-Click Image Opener] Event listeners registered successfully',
+      );
+    } catch (error) {
+      ErrorHandler.handleGenericError(
+        error instanceof Error ? error : new Error(String(error)),
+        'event listener registration',
+      );
+    }
   }
 
   /**
    * Unregisters event listeners for proper cleanup
    */
   public unregisterEventListeners(): void {
-    document.removeEventListener('dblclick', this.boundHandleDoubleClick, true);
+    try {
+      document.removeEventListener(
+        'dblclick',
+        this.boundHandleDoubleClick,
+        true,
+      );
+      console.log(
+        '[Double-Click Image Opener] Event listeners unregistered successfully',
+      );
+    } catch (error) {
+      ErrorHandler.handleGenericError(
+        error instanceof Error ? error : new Error(String(error)),
+        'event listener cleanup',
+      );
+    }
   }
 }

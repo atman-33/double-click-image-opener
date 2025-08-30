@@ -5,4 +5,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
   },
+  resolve: {
+    alias: {
+      obsidian: new URL('./test/mocks/obsidian.ts', import.meta.url).pathname,
+    },
+  },
 });

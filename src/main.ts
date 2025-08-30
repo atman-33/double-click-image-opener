@@ -72,5 +72,13 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
    */
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+
+    // Update ErrorHandler with new settings
+    ErrorHandler.initialize(this.settings);
+
+    // Update event handler with new settings if it exists
+    if (this.eventHandler) {
+      this.eventHandler.updateSettings();
+    }
   }
 }

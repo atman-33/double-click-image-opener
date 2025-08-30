@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join, normalize, resolve } from 'node:path';
+import { existsSync } from 'fs';
 import type { App } from 'obsidian';
+import { join, normalize, resolve } from 'path';
 import { ErrorHandler } from './error-handler';
 
 /**
@@ -16,20 +16,69 @@ export class PathResolver {
    * @returns Absolute file path or null if resolution fails
    */
   public resolveImagePath(imagePath: string): string | null {
-    if (!imagePath || imagePath.trim() === '') {
+    if (
+      !imagePath ||
+      typeof imagePath !== 'string' ||
+      imagePath.trim() === ''
+    ) {
       ErrorHandler.handlePathResolutionError('Empty or invalid path provided');
       return null;
     }
 
+    // Check for excessively long paths
+    if (imagePath.length > 1000) {
+      ErrorHandler.handlePathResolutionError('Path is too long');
+      return null;
+    }
+
+    // Check for null bytes or other dangerous characters
+    if (imagePath.includes('\0')) {
+      ErrorHandler.handlePathResolutionError('Path contains null bytes');
+      return null;
+    }
+
     try {
+      // Clean and normalize the path with enhanced special character handling
+      let cleanPath = imagePath.trim();
+
+      // Handle Unicode normalization for special characters
+      if (typeof cleanPath.normalize === 'function') {
+        cleanPath = cleanPath.normalize('NFC');
+      }
+
+      // Normalize path separators
+      cleanPath = cleanPath.replace(/\\/g, '/');
+
+      // Handle multiple consecutive slashes
+      cleanPath = cleanPath.replace(/\/+/g, '/');
+
+      // Remove trailing slashes (except for root)
+      if (cleanPath.length > 1 && cleanPath.endsWith('/')) {
+        cleanPath = cleanPath.slice(0, -1);
+      }
+
       let resolvedPath: string;
 
-      if (this.isAbsolutePath(imagePath)) {
+      if (this.isAbsolutePath(cleanPath)) {
         // Handle absolute paths - normalize and validate
-        resolvedPath = normalize(imagePath);
+        resolvedPath = normalize(cleanPath);
       } else {
         // Handle relative paths - resolve using vault base path
-        resolvedPath = this.resolveRelativePath(imagePath);
+        resolvedPath = this.resolveRelativePath(cleanPath);
+      }
+
+      // Additional security check - ensure resolved path is reasonable
+      if (resolvedPath.length > 2000) {
+        ErrorHandler.handlePathResolutionError('Resolved path is too long');
+        return null;
+      }
+
+      // Enhanced validation for special characters in resolved path
+      if (!this.isValidResolvedPath(resolvedPath)) {
+        ErrorHandler.handlePathResolutionError(
+          'Resolved path contains invalid characters',
+        );
+        return null;
       }
 
       // Validate that the file exists
@@ -41,10 +90,15 @@ export class PathResolver {
       return resolvedPath;
     } catch (error) {
       ErrorHandler.handlePathResolutionError(imagePath);
-      console.error(
-        `[Double-Click Image Opener] Path resolution error for ${imagePath}:`,
-        error,
-      );
+      if (
+        this.app.vault.adapter &&
+        'enableDebugLogging' in this.app.vault.adapter
+      ) {
+        console.error(
+          `[Double-Click Image Opener] Path resolution error for ${imagePath}:`,
+          error,
+        );
+      }
       return null;
     }
   }
@@ -94,6 +148,45 @@ export class PathResolver {
         `Failed to resolve relative path "${path}": ${error instanceof Error ? error.message : String(error)}`,
       );
     }
+  }
+
+  /**
+   * Validates that a resolved path is safe and reasonable
+   * @param path - The resolved path to validate
+   * @returns True if the path is valid, false otherwise
+   */
+  private isValidResolvedPath(path: string): boolean {
+    // Check for null bytes
+    if (path.includes('\0')) {
+      return false;
+    }
+
+    // Check for control characters (except tab, newline, carriage return)
+    // eslint-disable-next-line no-control-regex
+    if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(path)) {
+      return false;
+    }
+
+    // Check for excessive path traversal (more than reasonable for any vault structure)
+    const traversalCount = (path.match(/\.\./g) || []).length;
+    if (traversalCount > 10) {
+      return false;
+    }
+
+    // Check for suspicious patterns that might indicate injection attempts
+    // Be more selective - allow parentheses and brackets in filenames but not other dangerous chars
+    const suspiciousPatterns = [
+      /[;&|`$]/, // Command injection characters (excluding parentheses and brackets)
+      /^\s*[<>]/, // Redirection operators at start
+      /\$\{.*\}/, // Variable expansion
+      /`.*`/, // Command substitution
+    ];
+
+    if (suspiciousPatterns.some((pattern) => pattern.test(path))) {
+      return false;
+    }
+
+    return true;
   }
 
   /**

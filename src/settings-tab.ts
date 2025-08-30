@@ -1,5 +1,4 @@
 import { type App, PluginSettingTab, Setting } from 'obsidian';
-import { ErrorHandler } from './error-handler';
 import type DoubleClickImageOpenerPlugin from './main';
 
 /**
@@ -41,8 +40,6 @@ export class DoubleClickImageOpenerSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.showSuccessNotifications = value;
             await this.plugin.saveSettings();
-            // Reinitialize ErrorHandler with updated settings
-            ErrorHandler.initialize(this.plugin.settings);
           }),
       );
 
@@ -58,8 +55,6 @@ export class DoubleClickImageOpenerSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.enableDebugLogging = value;
             await this.plugin.saveSettings();
-            // Reinitialize ErrorHandler with updated settings
-            ErrorHandler.initialize(this.plugin.settings);
           }),
       );
   }

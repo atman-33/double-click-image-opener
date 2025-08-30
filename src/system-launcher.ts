@@ -80,18 +80,58 @@ async function executeCommand(command: string, args: string[]): Promise<void> {
 }
 
 /**
+ * Validates that a file path is safe to use in system commands
+ * @param filePath - The file path to validate
+ * @returns True if the path is safe, false otherwise
+ */
+function isValidFilePath(filePath: string): boolean {
+  if (!filePath || typeof filePath !== 'string') {
+    return false;
+  }
+
+  // Check for null bytes
+  if (filePath.includes('\0')) {
+    return false;
+  }
+
+  // Check for excessively long paths
+  if (filePath.length > 2000) {
+    return false;
+  }
+
+  // Check for suspicious command injection patterns
+  const dangerousPatterns = [
+    /[;&|`$(){}[\]]/, // Command injection characters
+    /^\s*[<>]/, // Redirection operators
+    /\$\{.*\}/, // Variable expansion
+    /`.*`/, // Command substitution
+  ];
+
+  return !dangerousPatterns.some((pattern) => pattern.test(filePath));
+}
+
+/**
  * Escapes a file path to prevent command injection and handle special characters
  * @param filePath - The file path to escape
  * @returns The escaped file path safe for use in system commands
  */
 function escapeFilePath(filePath: string): string {
+  // First validate the path
+  if (!isValidFilePath(filePath)) {
+    throw new Error(
+      'File path contains invalid or potentially dangerous characters',
+    );
+  }
+
   const currentPlatform = platform();
 
   if (currentPlatform === 'win32') {
     // On Windows, wrap path in double quotes to handle spaces and special characters
+    // Escape any existing double quotes by doubling them
     return `"${filePath.replace(/"/g, '""')}"`;
   } else {
-    // On Unix-like systems, escape special characters including parentheses
-    return filePath.replace(/(["\s'$`\\()])/g, '\\$1');
+    // On Unix-like systems, escape special characters
+    // More comprehensive escaping for special characters
+    return filePath.replace(/(["\s'\\()[\]{}*?~`!&;<>|$])/g, '\\$1');
   }
 }

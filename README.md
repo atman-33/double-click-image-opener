@@ -1,94 +1,150 @@
-# Obsidian Sample Plugin
+# Double-Click Image Opener
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+A lightweight Obsidian plugin that enhances image interaction by enabling users to open images in their default system application through double-click events.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+- **Double-click to open**: Simply double-click any image in your Obsidian vault to open it in your default system image viewer
+- **Cross-platform support**: Works on Windows, macOS, and Linux
+- **Multiple view modes**: Compatible with Reading mode, Live Preview mode, and Source mode
+- **Wide format support**: Supports all common image formats (PNG, JPG, JPEG, GIF, WebP, BMP, SVG, ICO, TIFF, AVIF, HEIC, etc.)
+- **Smart path resolution**: Handles both wikilink syntax (`![[image.png]]`) and standard markdown syntax (`![](image.png)`)
+- **Robust error handling**: Provides clear feedback for various error conditions
+- **Configurable notifications**: Optional success notifications when images are opened
+- **Security focused**: Validates file paths and prevents potential security issues
 
-## First time developing plugins?
+## How to Use
 
-Quick starting guide for new plugin devs:
+1. **Install the plugin**: Download and enable the plugin in your Obsidian settings
+2. **Double-click any image**: In any view mode (Reading, Live Preview, or Source), simply double-click on an image
+3. **Image opens externally**: The image will open in your system's default image viewer application
+4. **Configure settings**: Optionally enable success notifications in the plugin settings
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### Supported Image Formats
 
-## Releasing new releases
+The plugin supports all image formats that Obsidian can display:
+- PNG, JPG, JPEG
+- GIF, WebP
+- BMP, SVG, ICO
+- TIFF, TIF
+- AVIF, HEIC, HEIF
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### View Mode Compatibility
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+- **Reading Mode**: Full support for all image types
+- **Live Preview Mode**: Full support with dynamic content handling
+- **Source Mode**: Works with preview overlays and embedded images
 
-## Adding your plugin to the community plugin list
+## Installation
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+### From Obsidian Community Plugins (Recommended)
 
-## How to use
+1. Open Obsidian Settings
+2. Go to Community Plugins
+3. Search for "Double-Click Image Opener"
+4. Install and enable the plugin
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+### Manual Installation
 
-## Manually installing the plugin
+1. Download the latest release from the [releases page](https://github.com/obsidianmd/obsidian-sample-plugin/releases)
+2. Extract the files to your vault's `.obsidian/plugins/double-click-image-opener/` folder
+3. Reload Obsidian and enable the plugin in settings
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+## Settings
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+The plugin provides the following configurable options:
 
-## Funding URL
+- **Show success notifications**: Display a notification when an image is successfully opened (disabled by default)
 
-You can include funding URLs where people who use your plugin can financially support it.
+Access settings through: Settings → Community Plugins → Double-Click Image Opener → Settings
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+## Technical Details
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+### Architecture
+
+The plugin uses a modular architecture with the following components:
+
+- **ImageEventHandler**: Manages DOM event listeners and image detection
+- **PathResolver**: Resolves relative image paths to absolute file paths
+- **SystemLauncher**: Handles cross-platform system application launching
+- **ErrorHandler**: Provides comprehensive error handling and user feedback
+
+### Security Features
+
+- Path validation to prevent directory traversal attacks
+- Command injection prevention through proper path escaping
+- File type validation to ensure only image files are processed
+- Comprehensive error handling for edge cases
+
+### Performance Optimizations
+
+- Event delegation to minimize memory footprint
+- Lazy path resolution to avoid unnecessary file system operations
+- Non-blocking operations to maintain UI responsiveness
+
+## Development
+
+### Prerequisites
+
+- Node.js v16 or higher
+- npm or yarn package manager
+
+### Setup
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd double-click-image-opener
+
+# Install dependencies
+npm install
+
+# Start development mode with hot reload
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-If you have multiple URLs, you can also do:
+### Development Scripts
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+- `npm run dev` - Start development mode with watch compilation
+- `npm run build` - Build for production
+- `npm run lint` - Run code linting
+- `npm run format` - Format code with Biome
+- `npm run test` - Run unit tests
+- `npm run test:watch` - Run tests in watch mode
 
-## API Documentation
+## Troubleshooting
 
-See https://github.com/obsidianmd/obsidian-api
+### Common Issues
+
+**Images don't open when double-clicked**
+- Ensure the plugin is enabled in Obsidian settings
+- Check that the image file exists in your vault
+- Verify you have a default application set for the image format
+
+**Permission denied errors**
+- Check file permissions for the image
+- Ensure your default image viewer has necessary permissions
+- Try opening the image manually to verify it works
+
+**Path resolution errors**
+- Ensure image paths don't contain special characters that might cause issues
+- Check that relative paths are correct relative to your vault root
+
+### Debug Mode
+
+Enable debug logging in the plugin settings to get detailed information about what's happening when you double-click images. Check the developer console (Ctrl+Shift+I) for debug messages.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you find this plugin helpful, consider supporting its development through the funding options in the plugin settings or repository.

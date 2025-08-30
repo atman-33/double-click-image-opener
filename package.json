@@ -16,8 +16,14 @@
 		"test:watch": "vitest",
 		"test:ui": "vitest --ui"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"image",
+		"double-click",
+		"viewer"
+	],
+	"author": "atman-33",
 	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "2.2.2",

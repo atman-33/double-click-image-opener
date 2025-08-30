@@ -28,7 +28,7 @@ A lightweight Obsidian plugin that allows you to open images in your default sys
 
 ### Manual Installation
 
-1. Download the latest release
+1. [Download the latest release](https://github.com/atman-33/double-click-image-opener/releases)
 2. Extract files to `.obsidian/plugins/double-click-image-opener/`
     ```
     /.obsidian/plugins/double-click-image-opener/

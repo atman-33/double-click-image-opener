@@ -3,9 +3,9 @@
 	"name": "Double-Click Image Opener",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Open images in your default system application by double-clicking them in Obsidian",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Open images with the default app by double-clicking.",
+	"author": "atman-33",
+	"authorUrl": "https://github.com/atman-33/double-click-image-opener?tab=readme-ov-file#readme",
+	"fundingUrl": "",
 	"isDesktopOnly": true
 }

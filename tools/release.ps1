@@ -31,7 +31,7 @@ $releaseFiles = @("main.js", "manifest.json")
 if (Test-Path "styles.css") {
     $releaseFiles += "styles.css"
 }
-$releaseTag = "v$($version)"
+$releaseTag = "$($version)"
 
 
 # --- 1. Build Project ---

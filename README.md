@@ -46,7 +46,7 @@ The plugin supports all image formats that Obsidian can display:
 
 ### Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/obsidianmd/obsidian-sample-plugin/releases)
+1. Download the latest release from the [releases page](https://github.com/atman-33/double-click-image-opener/releases)
 2. Extract the files to your vault's `.obsidian/plugins/double-click-image-opener/` folder
 3. Reload Obsidian and enable the plugin in settings
 

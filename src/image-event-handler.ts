@@ -174,10 +174,8 @@ export class ImageEventHandler {
       // Open the image with the default system application using SystemLauncher
       await openWithDefaultApp(resolvedPath);
 
-      // Success - no notification needed as the image should open
-      console.log(
-        `[Double-Click Image Opener] Successfully opened: ${resolvedPath}`,
-      );
+      // Handle success with optional notification based on settings
+      ErrorHandler.handleSuccess(resolvedPath);
     } catch (error) {
       // Handle any unexpected errors that weren't caught by specific handlers
       ErrorHandler.handleGenericError(

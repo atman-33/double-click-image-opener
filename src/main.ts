@@ -1,5 +1,7 @@
 import { Plugin } from 'obsidian';
+import { ErrorHandler } from './error-handler';
 import { ImageEventHandler } from './image-event-handler';
+import { DoubleClickImageOpenerSettingTab } from './settings-tab';
 
 /**
  * Interface for plugin configuration settings
@@ -31,11 +33,17 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
   async onload(): Promise<void> {
     await this.loadSettings();
 
+    // Initialize error handler with settings
+    ErrorHandler.initialize(this.settings);
+
     // Initialize the image event handler
     this.eventHandler = new ImageEventHandler(this.app, this);
 
     // Register event listeners for image double-click handling
     this.eventHandler.registerEventListeners();
+
+    // Add settings tab
+    this.addSettingTab(new DoubleClickImageOpenerSettingTab(this.app, this));
 
     console.log('Double-Click Image Opener plugin loaded');
   }

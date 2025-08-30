@@ -206,5 +206,77 @@ describe('PathResolver', () => {
 
       expect(result).toBe(null);
     });
+
+    it('should handle images in subfolders', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = 'assets/images/subfolder/test.jpg';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
+
+    it('should handle images with spaces in filenames', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = 'images/my image file.jpg';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
+
+    it('should handle images with special characters in filenames', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = 'images/test-image_v2.0 (copy).jpg';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
+
+    it('should handle images with unicode characters in filenames', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = 'images/测试图片.jpg';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
+
+    it('should handle deeply nested subfolder paths', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = 'assets/images/2024/january/screenshots/test.png';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
+
+    it('should handle parent directory references in relative paths', () => {
+      mockExistsSync.mockReturnValue(true);
+      const relativePath = '../shared-images/test.jpg';
+      const expectedAbsolutePath = normalize(
+        resolve(join('/mock/vault/path', relativePath)),
+      );
+
+      const result = pathResolver.resolveImagePath(relativePath);
+      expect(result).toBe(expectedAbsolutePath);
+      expect(mockExistsSync).toHaveBeenCalledWith(expectedAbsolutePath);
+    });
   });
 });

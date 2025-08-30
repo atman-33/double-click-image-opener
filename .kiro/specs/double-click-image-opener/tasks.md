@@ -19,7 +19,8 @@
   - Create unit tests for path detection logic
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 3.2 Implement path resolution logic
+- [x] 3.2 Implement path resolution logic
+
   - Code resolveImagePath method to handle relative and absolute paths
   - Implement resolveRelativePath method using Obsidian's vault API
   - Add validateFileExists method using Node.js fs module

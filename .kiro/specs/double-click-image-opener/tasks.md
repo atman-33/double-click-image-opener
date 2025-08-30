@@ -32,14 +32,12 @@
   - Write SystemLauncher class with static methods
   - Implement getOpenCommand method for Windows, macOS, and Linux
   - Add proper command argument escaping for security
-  - Create unit tests with mocked system calls
   - _Requirements: 1.1, 4.2, 4.3, 4.4_
 
 - [x] 4.2 Implement system command execution
   - Code executeCommand method using Node.js child_process
   - Add proper error handling for system command failures
   - Implement openWithDefaultApp method as main entry point
-  - Write integration tests for system command execution
   - _Requirements: 1.1, 4.2, 4.3_
 
 - [x] 5. Implement image detection and event handling
@@ -48,7 +46,6 @@
   - Write ImageEventHandler class with proper constructor
   - Implement isImageElement method to detect image elements
   - Add extractImagePath method to get image source paths
-  - Create unit tests for image element detection
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
 - [x] 5.2 Implement double-click event handling
@@ -56,14 +53,12 @@
   - Code handleImageDoubleClick method with full event processing
   - Integrate PathResolver and SystemLauncher in event handler
   - Add proper event propagation control to prevent interference
-  - Write integration tests for complete double-click workflow
   - _Requirements: 1.1, 1.2, 1.3, 5.1, 5.4_
 
 - [ ] 5.3 Implement event listener registration and cleanup
   - Code registerEventListeners method using DOM event delegation
   - Implement unregisterEventListeners method for proper cleanup
   - Add event listener management to main plugin lifecycle
-  - Write tests to verify proper event cleanup on plugin unload
   - _Requirements: 5.3, 5.4_
 
 - [ ] 6. Implement error handling system
@@ -71,14 +66,12 @@
   - Write ErrorHandler class with static methods for different error types
   - Implement error message constants and formatting
   - Add integration with Obsidian's Notice system for user feedback
-  - Create unit tests for error message generation
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 6.2 Integrate error handling throughout the application
   - Add error handling to PathResolver methods
   - Integrate error handling in SystemLauncher
   - Add comprehensive error handling to ImageEventHandler
-  - Write integration tests for error scenarios
   - _Requirements: 1.3, 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 7. Implement plugin settings (optional features)
@@ -86,14 +79,12 @@
   - Define PluginSettings interface with optional configuration
   - Implement DEFAULT_SETTINGS constant
   - Add settings loading and saving methods to main plugin
-  - Write unit tests for settings management
   - _Requirements: 4.1, 5.2_
 
 - [ ] 7.2 Create settings tab for user configuration
   - Implement PluginSettingTab class extending Obsidian's base class
   - Add UI controls for showSuccessNotifications and enableDebugLogging
   - Integrate settings with error handling and feedback systems
-  - Write integration tests for settings functionality
   - _Requirements: 4.1, 5.2_
 
 - [ ] 8. Integration and final testing
@@ -101,14 +92,12 @@
   - Wire up ImageEventHandler in plugin onload method
   - Integrate settings management with event handler
   - Add proper component initialization and cleanup
-  - Write end-to-end integration tests
   - _Requirements: All requirements_
 
 - [ ] 8.2 Implement comprehensive error handling and edge cases
   - Add handling for images with special characters in filenames
   - Implement proper behavior for non-existent images
   - Add validation for supported image formats
-  - Write tests for all edge cases and error scenarios
   - _Requirements: 1.3, 1.4, 3.4, 4.1, 4.2, 4.3, 4.4_
 
 - [ ] 9. Final validation and cleanup

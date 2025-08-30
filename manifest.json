@@ -1,11 +1,11 @@
 {
-	"id": "hello-world",
-	"name": "Hello world",
+	"id": "double-click-image-opener",
+	"name": "Double-Click Image Opener",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
+	"description": "Open images in your default system application by double-clicking them in Obsidian",
 	"author": "Obsidian",
 	"authorUrl": "https://obsidian.md",
 	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }

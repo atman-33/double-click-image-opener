@@ -1,4 +1,5 @@
 import { Plugin } from 'obsidian';
+import { PathResolver } from './path-resolver';
 
 /**
  * Interface representing the context of an image element being processed

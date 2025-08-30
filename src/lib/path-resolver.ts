@@ -1,5 +1,7 @@
+/** biome-ignore-all lint/style/useNodejsImportProtocol: <node: is unnecessary> */
 import { existsSync } from 'fs';
 import type { App } from 'obsidian';
+import * as path from 'path';
 import { join, normalize, resolve } from 'path';
 import { ErrorHandler } from './error-handler';
 
@@ -60,8 +62,12 @@ export class PathResolver {
       let resolvedPath: string;
 
       if (this.isAbsolutePath(cleanPath)) {
-        // Handle absolute paths - normalize and validate
-        resolvedPath = normalize(cleanPath);
+        // Handle absolute paths - use platform-specific normalization
+        if (process.platform === 'win32') {
+          resolvedPath = path.win32.normalize(cleanPath);
+        } else {
+          resolvedPath = path.posix.normalize(cleanPath);
+        }
       } else {
         // Handle relative paths - resolve using vault base path
         resolvedPath = this.resolveRelativePath(cleanPath);

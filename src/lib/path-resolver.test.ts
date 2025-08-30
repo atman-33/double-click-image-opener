@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs';
+import * as path from 'node:path';
 import { join, normalize, resolve } from 'node:path';
 import type { App } from 'obsidian';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -120,7 +121,8 @@ describe('PathResolver', () => {
 
       mockExistsSync.mockReturnValue(true);
       const absolutePath = '/home/user/image.jpg';
-      const normalizedPath = normalize(absolutePath);
+      // Use posix normalize for Unix paths to ensure consistent behavior
+      const normalizedPath = path.posix.normalize(absolutePath);
 
       const result = pathResolver.resolveImagePath(absolutePath);
       expect(result).toBe(normalizedPath);
@@ -136,7 +138,8 @@ describe('PathResolver', () => {
 
       mockExistsSync.mockReturnValue(true);
       const absolutePath = 'C:\\Users\\test\\image.jpg';
-      const normalizedPath = normalize(absolutePath);
+      // Use win32 normalize for Windows paths to ensure consistent behavior across platforms
+      const normalizedPath = path.win32.normalize(absolutePath);
 
       const result = pathResolver.resolveImagePath(absolutePath);
       expect(result).toBe(normalizedPath);
@@ -152,7 +155,8 @@ describe('PathResolver', () => {
 
       mockExistsSync.mockReturnValue(false);
       const absolutePath = '/home/user/nonexistent.jpg';
-      const normalizedPath = normalize(absolutePath);
+      // Use posix normalize for Unix paths to ensure consistent behavior
+      const normalizedPath = path.posix.normalize(absolutePath);
 
       const result = pathResolver.resolveImagePath(absolutePath);
       expect(result).toBe(null);

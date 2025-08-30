@@ -1,11 +1,6 @@
-// eslint-disable-next-line unicorn/prefer-node-protocol
-// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
+/** biome-ignore-all lint/style/useNodejsImportProtocol: <node: is unnecessary> */
 import { exec } from 'child_process';
-// eslint-disable-next-line unicorn/prefer-node-protocol
-// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
 import { platform } from 'os';
-// eslint-disable-next-line unicorn/prefer-node-protocol
-// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
 import { promisify } from 'util';
 import { ErrorHandler } from './error-handler';
 

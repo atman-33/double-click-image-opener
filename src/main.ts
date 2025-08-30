@@ -1,7 +1,7 @@
 import { Plugin } from 'obsidian';
-import { ErrorHandler } from './error-handler';
-import { ImageEventHandler } from './image-event-handler';
-import { DoubleClickImageOpenerSettingTab } from './settings-tab';
+import { ErrorHandler } from './lib/error-handler';
+import { ImageEventHandler } from './lib/image-event-handler';
+import { DoubleClickImageOpenerSettingTab } from './lib/settings-tab';
 
 /**
  * Interface for plugin configuration settings

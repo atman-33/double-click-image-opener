@@ -1,5 +1,5 @@
 import { type App, PluginSettingTab, Setting } from 'obsidian';
-import type DoubleClickImageOpenerPlugin from './main';
+import type DoubleClickImageOpenerPlugin from '../main';
 
 /**
  * Settings tab for the Double-Click Image Opener plugin

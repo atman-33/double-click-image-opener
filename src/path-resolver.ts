@@ -162,9 +162,19 @@ export class PathResolver {
     }
 
     // Check for control characters (except tab, newline, carriage return)
-    // eslint-disable-next-line no-control-regex
-    if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(path)) {
-      return false;
+    // Using a more explicit approach to avoid linter warnings
+    for (let i = 0; i < path.length; i++) {
+      const charCode = path.charCodeAt(i);
+      // Check for control characters: 0-8, 11, 12, 14-31, 127
+      if (
+        (charCode >= 0 && charCode <= 8) ||
+        charCode === 11 ||
+        charCode === 12 ||
+        (charCode >= 14 && charCode <= 31) ||
+        charCode === 127
+      ) {
+        return false;
+      }
     }
 
     // Check for excessive path traversal (more than reasonable for any vault structure)

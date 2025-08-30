@@ -1,16 +1,5 @@
 import { Plugin } from 'obsidian';
 import { ImageEventHandler } from './image-event-handler';
-import { PathResolver } from './path-resolver';
-
-/**
- * Interface representing the context of an image element being processed
- */
-interface ImageContext {
-  element: HTMLImageElement;
-  originalPath: string;
-  resolvedPath: string | null;
-  fileExists: boolean;
-}
 
 /**
  * Interface for plugin configuration settings

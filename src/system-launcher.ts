@@ -1,6 +1,12 @@
-import { exec } from 'node:child_process';
-import { platform } from 'node:os';
-import { promisify } from 'node:util';
+// eslint-disable-next-line unicorn/prefer-node-protocol
+// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
+import { exec } from 'child_process';
+// eslint-disable-next-line unicorn/prefer-node-protocol
+// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
+import { platform } from 'os';
+// eslint-disable-next-line unicorn/prefer-node-protocol
+// biome-ignore lint/style/useNodejsImportProtocol: esbuild doesn't support node: protocol yet
+import { promisify } from 'util';
 import { ErrorHandler } from './error-handler';
 
 const execAsync = promisify(exec);

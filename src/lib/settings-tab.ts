@@ -43,19 +43,19 @@ export class DoubleClickImageOpenerSettingTab extends PluginSettingTab {
           }),
       );
 
-    // Debug logging setting
-    new Setting(containerEl)
-      .setName('Enable debug logging')
-      .setDesc(
-        'Enable detailed logging for troubleshooting. Check the developer console for debug messages.',
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.enableDebugLogging)
-          .onChange(async (value) => {
-            this.plugin.settings.enableDebugLogging = value;
-            await this.plugin.saveSettings();
-          }),
-      );
+    // Debug logging setting - commented out for now
+    // new Setting(containerEl)
+    //   .setName('Enable debug logging')
+    //   .setDesc(
+    //     'Enable detailed logging for troubleshooting. Check the developer console for debug messages.',
+    //   )
+    //   .addToggle((toggle) =>
+    //     toggle
+    //       .setValue(this.plugin.settings.enableDebugLogging)
+    //       .onChange(async (value) => {
+    //         this.plugin.settings.enableDebugLogging = value;
+    //         await this.plugin.saveSettings();
+    //       }),
+    //   );
   }
 }

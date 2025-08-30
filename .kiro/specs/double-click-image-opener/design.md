@@ -48,13 +48,15 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
 
 ```typescript
 class ImageEventHandler {
-  constructor(private app: App, private plugin: Plugin)
+  constructor(private app: App, private plugin: Plugin, private settings: PluginSettings)
   
   public registerEventListeners(): void
   public unregisterEventListeners(): void
   private handleImageDoubleClick(event: MouseEvent): Promise<void>
   private isImageElement(element: HTMLElement): boolean
   private extractImagePath(element: HTMLImageElement): string | null
+  private detectMarkdownSyntax(element: HTMLImageElement): 'wikilink' | 'markdown' | 'unknown'
+  private preventEventInterference(event: MouseEvent): void
 }
 ```
 
@@ -88,6 +90,8 @@ class ErrorHandler {
   public static handleFileNotFound(imagePath: string): void
   public static handlePermissionError(error: Error): void
   public static handleSystemError(error: Error): void
+  public static handleUnsupportedFormat(imagePath: string): void
+  public static showSuccessNotification(imagePath: string, settings: PluginSettings): void
 }
 ```
 
@@ -121,6 +125,8 @@ interface PluginSettings {
 2. **Permission Errors**: System denies access to file or default application
 3. **System Errors**: Operating system fails to launch the application
 4. **Path Resolution Errors**: Unable to convert relative paths to absolute paths
+5. **Unsupported Format Errors**: Default application cannot handle the specific image format
+6. **Success Notifications**: Optional positive feedback when images open successfully
 
 ### Error Handling Strategy
 
@@ -136,7 +142,9 @@ const ERROR_MESSAGES = {
   FILE_NOT_FOUND: "Image file not found: {path}",
   PERMISSION_DENIED: "Permission denied when trying to open image",
   SYSTEM_ERROR: "Failed to open image with default application",
-  PATH_RESOLUTION_FAILED: "Could not resolve image path"
+  PATH_RESOLUTION_FAILED: "Could not resolve image path",
+  UNSUPPORTED_FORMAT: "Default application cannot handle this image format: {path}",
+  SUCCESS: "Opened image: {filename}"
 };
 ```
 
@@ -174,21 +182,42 @@ const ERROR_MESSAGES = {
 ### Manual Testing Scenarios
 
 1. **Basic Functionality**
-   - Double-click images in different view modes
-   - Test various image formats (PNG, JPG, GIF, WebP)
-   - Test images in different folder structures
+   - Double-click images in Reading mode, Live Preview mode, and Source mode
+   - Test various image formats (PNG, JPG, GIF, WebP) supported by Obsidian
+   - Test images in different folder structures and vault locations
 
-2. **Edge Cases**
-   - Images with special characters in names
-   - Non-existent images
-   - Images without default applications
-   - Very large images
+2. **Markdown Syntax Compatibility**
+   - Test wikilink syntax (![[image.png]]) in all view modes
+   - Test standard markdown syntax (![](image.png)) in all view modes
+   - Verify consistent behavior across different embedding methods
 
-3. **Performance Testing**
+3. **Edge Cases**
+   - Images with special characters and spaces in filenames
+   - Non-existent images and broken links
+   - Images without default applications or unsupported formats
+   - Very large images and performance impact
+
+4. **Event Interference Testing**
+   - Verify single-click behavior remains unchanged
+   - Test text selection and editing functionality near images
+   - Confirm no interference with normal Obsidian interactions
+
+5. **Performance Testing**
    - Test with documents containing many images
    - Verify no performance degradation during normal use
+   - Test event listener cleanup on plugin disable
 
 ## Implementation Considerations
+
+### View Mode Compatibility
+
+The plugin must work consistently across all Obsidian view modes, which requires different approaches for image detection:
+
+- **Reading Mode**: Images are rendered as standard HTML `<img>` elements, making detection straightforward
+- **Live Preview Mode**: Images may be dynamically rendered and updated, requiring robust event delegation
+- **Source Mode**: Images are displayed as markdown text, but may still have preview overlays that need handling
+
+**Design Decision**: Use event delegation on the document level rather than individual image elements to ensure compatibility across all view modes. This approach automatically handles dynamically added/removed images and works regardless of how Obsidian renders them.
 
 ### Cross-Platform Compatibility
 
@@ -198,9 +227,11 @@ const ERROR_MESSAGES = {
 
 ### Performance Optimization
 
-- **Event Delegation**: Use single event listener on document with event delegation
-- **Lazy Loading**: Only resolve paths when actually needed
-- **Debouncing**: Prevent rapid successive double-clicks
+- **Event Delegation**: Use single event listener on document with event delegation to minimize memory footprint
+- **Lazy Loading**: Only resolve paths when actually needed to avoid unnecessary file system operations
+- **Debouncing**: Prevent rapid successive double-clicks to avoid multiple application launches
+- **Non-Blocking Operations**: Ensure double-click handling doesn't interfere with normal text selection or editing
+- **Minimal DOM Traversal**: Efficient image element detection to maintain responsiveness
 
 ### Security Considerations
 

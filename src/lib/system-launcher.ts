@@ -61,7 +61,15 @@ function getOpenCommand(): string {
  * @throws Error if the command execution fails
  */
 async function executeCommand(command: string, args: string[]): Promise<void> {
-  const fullCommand = `${command} ${args.join(' ')}`;
+  let fullCommand: string;
+
+  // Handle Windows start command specially to prevent opening command prompt
+  if (command === 'start' && platform() === 'win32') {
+    // Use empty string as window title to prevent path being interpreted as title
+    fullCommand = `start "" ${args.join(' ')}`;
+  } else {
+    fullCommand = `${command} ${args.join(' ')}`;
+  }
 
   try {
     await execAsync(fullCommand);

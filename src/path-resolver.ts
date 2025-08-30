@@ -1,6 +1,6 @@
-import { existsSync } from 'node:fs';
-import { join, normalize, resolve } from 'node:path';
+import { existsSync } from 'fs';
 import type { App } from 'obsidian';
+import { join, normalize, resolve } from 'path';
 
 /**
  * Service class for resolving image paths from relative to absolute paths

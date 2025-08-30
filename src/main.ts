@@ -1,4 +1,5 @@
 import { Plugin } from 'obsidian';
+import { ImageEventHandler } from './image-event-handler';
 import { PathResolver } from './path-resolver';
 
 /**
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
  */
 export default class DoubleClickImageOpenerPlugin extends Plugin {
   settings: PluginSettings;
+  private eventHandler: ImageEventHandler;
 
   /**
    * Plugin initialization - called when plugin is loaded
@@ -40,7 +42,12 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
   async onload(): Promise<void> {
     await this.loadSettings();
 
-    // TODO: Initialize event handlers and other components in future tasks
+    // Initialize the image event handler
+    this.eventHandler = new ImageEventHandler(this.app, this);
+
+    // Register event listeners for image double-click handling
+    this.eventHandler.registerEventListeners();
+
     console.log('Double-Click Image Opener plugin loaded');
   }
 
@@ -48,7 +55,11 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
    * Plugin cleanup - called when plugin is unloaded
    */
   onunload(): void {
-    // TODO: Clean up event listeners and other resources in future tasks
+    // Clean up event listeners to prevent memory leaks
+    if (this.eventHandler) {
+      this.eventHandler.unregisterEventListeners();
+    }
+
     console.log('Double-Click Image Opener plugin unloaded');
   }
 

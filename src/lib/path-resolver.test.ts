@@ -10,10 +10,25 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
 }));
 
-// Mock Obsidian App
+// Mock Obsidian Platform
+vi.mock('obsidian', async () => {
+  const actual = await vi.importActual('obsidian');
+  return {
+    ...actual,
+    Platform: {
+      isWin: false, // Default to non-Windows for tests
+    },
+  };
+});
+
+// Mock Obsidian App - use a custom config directory name to test flexibility
 const mockApp = {
   vault: {
-    configDir: '/mock/vault/path/.obsidian',
+    // Mock configDir with dummy directory for testing
+    configDir: '/mock/vault/path/.my-custom-obsidian',
+    adapter: {
+      path: '/mock/vault/path',
+    },
   },
 } as unknown as App;
 
@@ -27,12 +42,10 @@ describe('PathResolver', () => {
   });
 
   describe('isAbsolutePath', () => {
-    it('should detect Windows absolute paths', () => {
+    it('should detect Windows absolute paths', async () => {
       // Mock Windows platform
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = true;
 
       expect(pathResolver.isAbsolutePath('C:\\Users\\test\\image.jpg')).toBe(
         true,
@@ -43,24 +56,20 @@ describe('PathResolver', () => {
       );
     });
 
-    it('should detect Windows relative paths', () => {
+    it('should detect Windows relative paths', async () => {
       // Mock Windows platform
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = true;
 
       expect(pathResolver.isAbsolutePath('images\\test.jpg')).toBe(false);
       expect(pathResolver.isAbsolutePath('.\\images\\test.jpg')).toBe(false);
       expect(pathResolver.isAbsolutePath('..\\images\\test.jpg')).toBe(false);
     });
 
-    it('should detect Unix absolute paths', () => {
+    it('should detect Unix absolute paths', async () => {
       // Mock Unix platform
-      Object.defineProperty(process, 'platform', {
-        value: 'linux',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = false;
 
       expect(pathResolver.isAbsolutePath('/home/user/image.jpg')).toBe(true);
       expect(pathResolver.isAbsolutePath('/var/www/images/test.png')).toBe(
@@ -68,35 +77,29 @@ describe('PathResolver', () => {
       );
     });
 
-    it('should detect Unix relative paths', () => {
+    it('should detect Unix relative paths', async () => {
       // Mock Unix platform
-      Object.defineProperty(process, 'platform', {
-        value: 'linux',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = false;
 
       expect(pathResolver.isAbsolutePath('images/test.jpg')).toBe(false);
       expect(pathResolver.isAbsolutePath('./images/test.jpg')).toBe(false);
       expect(pathResolver.isAbsolutePath('../images/test.jpg')).toBe(false);
     });
 
-    it('should handle macOS paths', () => {
-      // Mock macOS platform
-      Object.defineProperty(process, 'platform', {
-        value: 'darwin',
-        configurable: true,
-      });
+    it('should handle macOS paths', async () => {
+      // Mock macOS platform (non-Windows)
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = false;
 
       expect(pathResolver.isAbsolutePath('/Users/test/image.jpg')).toBe(true);
       expect(pathResolver.isAbsolutePath('images/test.jpg')).toBe(false);
     });
 
-    it('should handle edge cases', () => {
+    it('should handle edge cases', async () => {
       // Mock Windows platform for edge cases
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = true;
 
       expect(pathResolver.isAbsolutePath('')).toBe(false);
       expect(pathResolver.isAbsolutePath('C')).toBe(false);
@@ -112,12 +115,10 @@ describe('PathResolver', () => {
       expect(pathResolver.resolveImagePath('   ')).toBe(null);
     });
 
-    it('should handle absolute paths when file exists', () => {
+    it('should handle absolute paths when file exists', async () => {
       // Mock Unix platform
-      Object.defineProperty(process, 'platform', {
-        value: 'linux',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = false;
 
       mockExistsSync.mockReturnValue(true);
       const absolutePath = '/home/user/image.jpg';
@@ -129,12 +130,10 @@ describe('PathResolver', () => {
       expect(mockExistsSync).toHaveBeenCalledWith(normalizedPath);
     });
 
-    it('should handle Windows absolute paths when file exists', () => {
+    it('should handle Windows absolute paths when file exists', async () => {
       // Mock Windows platform
-      Object.defineProperty(process, 'platform', {
-        value: 'win32',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = true;
 
       mockExistsSync.mockReturnValue(true);
       const absolutePath = 'C:\\Users\\test\\image.jpg';
@@ -146,12 +145,10 @@ describe('PathResolver', () => {
       expect(mockExistsSync).toHaveBeenCalledWith(normalizedPath);
     });
 
-    it('should return null when absolute path file does not exist', () => {
+    it('should return null when absolute path file does not exist', async () => {
       // Mock Unix platform
-      Object.defineProperty(process, 'platform', {
-        value: 'linux',
-        configurable: true,
-      });
+      const { Platform } = await import('obsidian');
+      vi.mocked(Platform).isWin = false;
 
       mockExistsSync.mockReturnValue(false);
       const absolutePath = '/home/user/nonexistent.jpg';
@@ -166,6 +163,7 @@ describe('PathResolver', () => {
     it('should handle relative paths when file exists', () => {
       mockExistsSync.mockReturnValue(true);
       const relativePath = 'images/test.jpg';
+      // Use the vault base path derived from configDir (removing the custom config directory)
       const expectedAbsolutePath = normalize(
         resolve(join('/mock/vault/path', relativePath)),
       );
@@ -178,6 +176,7 @@ describe('PathResolver', () => {
     it('should handle relative paths with ./ prefix', () => {
       mockExistsSync.mockReturnValue(true);
       const relativePath = './images/test.jpg';
+      // Use the vault base path derived from configDir
       const expectedAbsolutePath = normalize(
         resolve(join('/mock/vault/path', 'images/test.jpg')),
       );

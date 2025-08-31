@@ -1,9 +1,18 @@
 /** biome-ignore-all lint/style/useNodejsImportProtocol: <node: is unnecessary> */
 import { existsSync } from 'fs';
 import type { App } from 'obsidian';
+import { Platform } from 'obsidian';
 import * as path from 'path';
 import { join, normalize, resolve } from 'path';
 import { ErrorHandler } from './error-handler';
+
+/**
+ * Extended vault adapter interface with path properties
+ */
+interface VaultAdapterWithPath {
+  basePath?: string;
+  path?: string;
+}
 
 /**
  * Service class for resolving image paths from relative to absolute paths
@@ -63,7 +72,7 @@ export class PathResolver {
 
       if (this.isAbsolutePath(cleanPath)) {
         // Handle absolute paths - use platform-specific normalization
-        if (process.platform === 'win32') {
+        if (Platform.isWin) {
           resolvedPath = path.win32.normalize(cleanPath);
         } else {
           resolvedPath = path.posix.normalize(cleanPath);
@@ -116,7 +125,7 @@ export class PathResolver {
    */
   public isAbsolutePath(path: string): boolean {
     // Handle Windows absolute paths (C:\, D:\, etc.)
-    if (process.platform === 'win32') {
+    if (Platform.isWin) {
       return /^[a-zA-Z]:[\\/]/.test(path) || path.startsWith('\\\\');
     }
 
@@ -132,11 +141,19 @@ export class PathResolver {
    */
   private resolveRelativePath(path: string): string {
     try {
-      // Get the vault's base path from configDir (remove .obsidian suffix)
-      const vaultBasePath = this.app.vault.configDir.replace(
-        /[/\\]\.obsidian$/,
-        '',
-      );
+      // Get the vault's base path using Obsidian's vault adapter
+      let vaultBasePath: string;
+
+      // Try to get the base path from the vault adapter
+      const adapter = this.app.vault.adapter as VaultAdapterWithPath;
+      if (adapter && 'basePath' in adapter && adapter.basePath) {
+        vaultBasePath = adapter.basePath;
+      } else if (adapter && 'path' in adapter && adapter.path) {
+        vaultBasePath = adapter.path;
+      } else {
+        // Fallback: derive from configDir by removing the config directory suffix
+        vaultBasePath = this.app.vault.configDir.replace(/[/\\][^/\\]+$/, '');
+      }
 
       if (!vaultBasePath) {
         throw new Error('Could not determine vault base path');

@@ -1,5 +1,5 @@
 import { Plugin } from 'obsidian';
-import { ErrorHandler } from './lib/error-handler';
+import * as ErrorHandler from './lib/error-handler';
 import { ImageEventHandler } from './lib/image-event-handler';
 import { DoubleClickImageOpenerSettingTab } from './lib/settings-tab';
 
@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
  * Handles the core plugin lifecycle and coordinates image opening functionality
  */
 export default class DoubleClickImageOpenerPlugin extends Plugin {
-  settings: PluginSettings;
+  settings: PluginSettings = { ...DEFAULT_SETTINGS };
   private eventHandler: ImageEventHandler;
 
   /**
@@ -45,7 +45,9 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
     // Add settings tab
     this.addSettingTab(new DoubleClickImageOpenerSettingTab(this.app, this));
 
-    console.log('Double-Click Image Opener plugin loaded');
+    if (this.settings.enableDebugLogging) {
+      console.debug('[Double-Click Image Opener] Plugin loaded');
+    }
   }
 
   /**
@@ -57,7 +59,9 @@ export default class DoubleClickImageOpenerPlugin extends Plugin {
       this.eventHandler.unregisterEventListeners();
     }
 
-    console.log('Double-Click Image Opener plugin unloaded');
+    if (this.settings.enableDebugLogging) {
+      console.debug('[Double-Click Image Opener] Plugin unloaded');
+    }
   }
 
   /**

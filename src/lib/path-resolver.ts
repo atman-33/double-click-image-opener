@@ -4,7 +4,7 @@ import type { App } from 'obsidian';
 import { Platform } from 'obsidian';
 import * as path from 'path';
 import { join, normalize, resolve } from 'path';
-import { ErrorHandler } from './error-handler';
+import * as ErrorHandler from './error-handler';
 
 /**
  * Extended vault adapter interface with path properties

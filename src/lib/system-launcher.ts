@@ -2,7 +2,7 @@
 import { exec } from 'child_process';
 import { platform } from 'os';
 import { promisify } from 'util';
-import { ErrorHandler } from './error-handler';
+import * as ErrorHandler from './error-handler';
 
 const execAsync = promisify(exec);
 

@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
 import type DoubleClickImageOpenerPlugin from '../main';
-import { ErrorHandler } from './error-handler';
+import * as ErrorHandler from './error-handler';
 import { PathResolver } from './path-resolver';
 import { openWithDefaultApp } from './system-launcher';
 

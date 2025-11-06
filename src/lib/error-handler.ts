@@ -60,7 +60,7 @@ export const handleSuccess = (imagePath: string): void => {
     new Notice(`Image opened successfully: ${imagePath}`, 3000);
   }
   if (settings?.enableDebugLogging) {
-    console.log(
+    console.debug(
       `[Double-Click Image Opener] Successfully opened: ${imagePath}`,
     );
   }

@@ -369,9 +369,11 @@ export class ImageEventHandler {
     try {
       // Use event delegation on the document to catch all image double-clicks
       document.addEventListener('dblclick', this.boundHandleDoubleClick, true);
-      console.log(
-        '[Double-Click Image Opener] Event listeners registered successfully',
-      );
+      if (this.plugin.settings.enableDebugLogging) {
+        console.debug(
+          '[Double-Click Image Opener] Event listeners registered successfully',
+        );
+      }
     } catch (error) {
       ErrorHandler.handleGenericError(
         error instanceof Error ? error : new Error(String(error)),
@@ -390,9 +392,11 @@ export class ImageEventHandler {
         this.boundHandleDoubleClick,
         true,
       );
-      console.log(
-        '[Double-Click Image Opener] Event listeners unregistered successfully',
-      );
+      if (this.plugin.settings.enableDebugLogging) {
+        console.debug(
+          '[Double-Click Image Opener] Event listeners unregistered successfully',
+        );
+      }
     } catch (error) {
       ErrorHandler.handleGenericError(
         error instanceof Error ? error : new Error(String(error)),

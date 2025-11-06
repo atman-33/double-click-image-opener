@@ -23,7 +23,7 @@ export class DoubleClickImageOpenerSettingTab extends PluginSettingTab {
 
     // Plugin title and description
     new Setting(containerEl)
-      .setName('Double-Click Image Opener Settings')
+      .setName('Double-click image opener settings')
       .setHeading()
       .setDesc(
         'Configure how the plugin behaves when opening images with double-click.',

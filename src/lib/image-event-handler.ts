@@ -9,7 +9,7 @@ import { openWithDefaultApp } from './system-launcher';
  */
 export class ImageEventHandler {
   private pathResolver: PathResolver;
-  private boundHandleDoubleClick: (event: MouseEvent) => Promise<void>;
+  private boundHandleDoubleClick: (event: MouseEvent) => void;
 
   /**
    * Creates a new ImageEventHandler instance
@@ -22,7 +22,9 @@ export class ImageEventHandler {
   ) {
     this.pathResolver = new PathResolver(app);
     // Bind the event handler to maintain proper 'this' context
-    this.boundHandleDoubleClick = this.handleImageDoubleClick.bind(this);
+    this.boundHandleDoubleClick = (event: MouseEvent) => {
+      void this.handleImageDoubleClick(event);
+    };
   }
 
   /**

@@ -32,3 +32,6 @@ double-click-image-opener-*.zip
 
 # Serena
 .serena
+
+# Temporary files
+.tmp/

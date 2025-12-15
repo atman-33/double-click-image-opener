@@ -149,7 +149,7 @@ export class ImageEventHandler {
       if (path.startsWith('file://')) {
         try {
           path = decodeURIComponent(path.replace('file://', ''));
-        } catch (_decodeError) {
+        } catch {
           // Handle malformed URI encoding
           path = path.replace('file://', '');
         }
@@ -161,7 +161,7 @@ export class ImageEventHandler {
         if (match) {
           try {
             path = decodeURIComponent(match[1]);
-          } catch (_decodeError) {
+          } catch {
             // Handle malformed URI encoding
             path = match[1];
           }
@@ -208,7 +208,7 @@ export class ImageEventHandler {
             path = decodedPath;
           }
         }
-      } catch (_decodeError) {
+      } catch {
         // If decoding fails, continue with the original path
         // This handles cases where % is used literally in filenames
       }

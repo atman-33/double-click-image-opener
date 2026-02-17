@@ -3,9 +3,8 @@
 	"name": "Double-Click Image Opener",
 	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "Open images with the default app by double-clicking.",
+	"description": "Open images with your system's default application by double-clicking.",
 	"author": "atman-33",
 	"authorUrl": "https://atman-33.github.io/atman-hub",
-	"fundingUrl": "",
 	"isDesktopOnly": true
 }
